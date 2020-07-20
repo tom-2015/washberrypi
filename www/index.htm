@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<link rel="icon" type="image/png" href="favicon.png"/>
+	<link href="jquery-ui-1.12.1/jquery-ui.min.css" rel="stylesheet">
+	<link href="washberry.css" rel="stylesheet">
+	<script src="jquery-3.5.1.min.js"></script>
+	<script src="jquery-ui-1.12.1/jquery-ui.min.js"></script>
+	<script src="washberry.js"></script>
+	<title>Wasmachine</title>
+</head>
+<body>
+
+	<table>
+		<tr>
+			<td>Status:</td>
+			<td><span id="status"></span></td>
+		</tr>
+		<tr>
+			<td>Tijd:</td>
+			<td><span id="time_left"></span></td>
+		</tr>
+		<tr>
+			<td>Temperatuur:</td>
+			<td><span id="current_temp"></span></td>
+		</tr>
+		<tr>
+			<td>Water:</td>
+			<td><span id="current_water"></span>%</td>
+		</tr>
+		<tr>
+			<td>Toerental:</td>
+			<td><span id="current_rpm"></span></td>
+		</tr>
+		<tr>
+			<td>Bezig met:</td>
+			<td><span id="current_state"></span></td>
+		</tr>
+	</table>
+	
+	<div>
+		<div class="button_div"><button id="cmd_start_program" class="jq-button">Starten</button></div>
+		<div class="button_div"><button id="cmd_continue_program" class="jq-button">Verder</button></div>
+		<div class="button_div"><button id="cmd_stop_program" class="jq-button">Stoppen</button></div>
+	</div>
+	
+	<div id="dlg_ask_question">
+	</div>
+	
+	<div id="dlg_message">
+	</div>
+	
+	<div id="dlg_start_prgram">
+
+		<form name="frm_start" id="frm_start" action="start" method="POST" >
+			<table>
+				<tr>
+					<td>Programma:</td>
+					<td>
+						<select id="cmb_program_type" name="program_type">
+							<option value="1">Dagelijkse was</option>
+							<option value="2">Vlekken</option>
+							<option value="3">Snel</option>
+							<option value="4">Spoelen</option>
+							<option value="5">Centrifugeren</option>
+							<option value="6">Gordijnen</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>Temperatuur:</td>
+					<td>
+						<select id="cmb_temp" name="temp">
+							<option value="20">20&#xB0;</option>
+							<option value="30">30&#xB0;</option>
+							<option value="40">40&#xB0;</option>
+							<option value="60">60&#xB0;</option>
+							<option value="75">75&#xB0;</option>
+							<option value="90">90&#xB0;</option>
+						</select>
+					</td>				
+				</tr>
+				<tr>
+					<td>Toeren:</td>
+					<td>
+						<select id="cmb_rpm" name="rpm">
+							<option value="400">400</option>
+							<option value="600">600</option>
+							<option value="800">800</option>
+							<option value="1000">1000</option>
+							<option value="1200">1200</option>
+							<option value="1400">1400</option>
+						</select>
+					</td>				
+				</tr>
+				<tr>
+					<td>Opties:</td>
+				</tr>
+				<tr>
+					<td>
+						<input type="checkbox" name="options" value="1" id="ch_wait_centrifuge"><label for="ch_wait_centrifuge">Spoelstop</label>
+					</td>
+				</tr>
+			</table>
+		</form>	
+	</div>
+</body>
+</html>

@@ -1,0 +1,19 @@
+[Settings]
+Active Directory=D:\data\Documenten\Visual Studio 2017\Projects\Washmachine\pic\
+Target=PIC18F2550
+Active Compiler=BoostC
+Active Config=Debug
+Last Ext=h
+Config=1
+ClockRate=48000000
+Profiling=0
+Snapshot=0
+[Files]
+Count=3
+File0=sp.c
+File1=sp.h
+File2=washing_machine.c
+[Watch]
+Count=0
+[Watchpoint]
+Count=0

@@ -1,0 +1,13 @@
+[Unit]
+Description=washmachine
+After=network.target
+
+[Service]
+# Change this to match your install directory
+# Send stdout and stderr to /dev/null because RAM might overflow otherwise
+ExecStart=/home/pi/washmachine/Washmachine.exe > /dev/null 2&>1
+Restart=on-failure
+User=root
+
+[Install]
+WantedBy=multi-user.target
