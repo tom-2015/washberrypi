@@ -389,7 +389,7 @@ Public Class MMI
                                                     Case <= 40
                                                         SetTemp(60)
                                                     Case <= 60
-                                                        SetTemp(90)
+                                                        SetTemp(80) 'set max temp, can be 90 or 95
                                                     Case Else
                                                         SetTemp(20)
                                                 End Select

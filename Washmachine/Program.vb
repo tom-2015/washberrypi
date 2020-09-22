@@ -75,7 +75,7 @@ Public Class ProgramManager
         Console.WriteLine("Wash " & WantedTemp & "," & RPM & "," & ExtraRinse)
         Select Case ProgramType
             Case ProgramTypes.DailyWash
-                Program.AddBlock(New AddWater(Program, WaterControl.WaterSource.WaterSource2, 75, 35))
+                Program.AddBlock(New AddWater(Program, WaterControl.WaterSource.WaterSource2, 70, 35))
                 Program.AddBlock(New CreateFoam(Program, 80))
                 Program.AddBlock(New Wash(Program, WantedTemp, 10 * 60, 120 * 60))
                 Program.AddBlock(New PumpOutWater(Program))
@@ -101,7 +101,7 @@ Public Class ProgramManager
                     Program.AddBlock(New Centrifuge(Program, RPM * 0.45, 1.5 * 60))
                 Next
             Case ProgramTypes.Fast
-                Program.AddBlock(New AddWater(Program, WaterControl.WaterSource.WaterSource2, 75, 35))
+                Program.AddBlock(New AddWater(Program, WaterControl.WaterSource.WaterSource2, 65, 35))
                 Program.AddBlock(New CreateFoam(Program, 80))
                 Program.AddBlock(New Wash(Program, WantedTemp, 5 * 60, 120 * 60))
                 Program.AddBlock(New PumpOutWater(Program))

@@ -418,5 +418,13 @@ Public Class WashingMachine
                 RaiseEvent DebugEvent(Me, "Error removing save program file: " & SaveProgramFileName)
             End Try
         End If
+
+        Try
+            Shell(My.Application.Info.DirectoryPath & "/finish.sh")
+        Catch ex As Exception
+            RaiseEvent DebugEvent(Me, "Execute finish.sh failed " & ex.Message)
+        End Try
+
     End Sub
+
 End Class
