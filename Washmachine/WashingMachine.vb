@@ -435,4 +435,5 @@ Public Class WashingMachine
         End Try
 
     End Sub
+
 End Class

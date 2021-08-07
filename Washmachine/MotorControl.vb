@@ -92,9 +92,9 @@ Public Class MotorControl
     Public ThresholdX As Single = 1.3
     Public ThresholdY As Single = 2.4
     Public ThresholdZ As Single = 2.3
-    Public PeakThresholdX As Single = 1.2
-    Public PeakThresholdY As Single = 4.0
-    Public PeakThresholdZ As Single = 4.0
+    Public PeakThresholdX As Single = 1.1
+    Public PeakThresholdY As Single = 3.1
+    Public PeakThresholdZ As Single = 11
     Public ThresholdCountX As Integer
     Public ThresholdCountY As Integer
     Public ThresholdCountZ As Integer
@@ -280,22 +280,26 @@ Public Class MotorControl
             End If
 
             'first very slowly go to 250 and check for any unbalance using the accelerometer
-            Dim TryCentrifugeTimeout As Integer = 15
+            Dim TryCentrifugeTimeout As Integer = 25
             Do
                 If PrintDebugData Then RaiseEvent DebugPrint(Me, "Try centrifuge " & TryCentrifugeTimeout)
 
                 'first do a short wash cycle
-                Thread.Sleep(100)
-                SetWantedSpeed(40 * Direction)
-                Thread.Sleep(15000 + Rnd() * 4000)
-                SetWantedSpeed(0)
-                Thread.Sleep(2000)
-                SetWantedSpeed(-40 * Direction)
-                Thread.Sleep(10000 + Rnd() * 4000)
-                SetWantedSpeed(0)
-                Thread.Sleep(100)
-                SetWantedSpeed(40 * Direction)
-                Thread.Sleep(5000 + Rnd() * 4000)
+                Dim NWashCycle As Integer = 1
+                If TryCentrifugeTimeout <= 21 Then NWashCycle = Rnd() * 4 + 1
+                For n As Integer = 0 To NWashCycle - 1
+                    Thread.Sleep(100)
+                    SetWantedSpeed(40 * Direction)
+                    Thread.Sleep(11000 + Rnd() * 4000)
+                    SetWantedSpeed(0)
+                    Thread.Sleep(2000)
+                    SetWantedSpeed(-40 * Direction)
+                    Thread.Sleep(10000 + Rnd() * 4000)
+                    SetWantedSpeed(0)
+                    Thread.Sleep(100)
+                    SetWantedSpeed(40 * Direction)
+                    Thread.Sleep(5000 + Rnd() * 4000)
+                Next
 
                 PeakX = 0
                 PeakY = 0
@@ -360,6 +364,7 @@ Public Class MotorControl
 
             If TryCentrifugeTimeout = 0 Then
                 If PrintDebugData Then RaiseEvent DebugPrint(Me, "Error detecting balance!")
+                StopAcceleroMeter()
                 RaiseEvent BalanceDetectionFailed(Me)
                 Console.WriteLine("Centrifuge start failed!")
                 Exit Sub
