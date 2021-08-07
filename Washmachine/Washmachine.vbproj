@@ -80,7 +80,6 @@
     <Compile Include="ADXL345.vb" />
     <Compile Include="HeatControl.vb" />
     <Compile Include="MCP23S17.vb" />
-    <Compile Include="MMA7660.vb" />
     <Compile Include="MMI.vb" />
     <Compile Include="ModMain.vb" />
     <Compile Include="MotorControl.vb" />

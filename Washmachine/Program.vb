@@ -75,14 +75,14 @@ Public Class ProgramManager
         Console.WriteLine("Wash " & WantedTemp & "," & RPM & "," & ExtraRinse)
         Select Case ProgramType
             Case ProgramTypes.DailyWash
-                Program.AddBlock(New AddWater(Program, WaterControl.WaterSource.WaterSource2, 75, 35))
+                Program.AddBlock(New AddWater(Program, WaterControl.WaterSource.WaterSource2, 68, 35))
                 Program.AddBlock(New CreateFoam(Program, 80))
                 Program.AddBlock(New Wash(Program, WantedTemp, 10 * 60, 120 * 60))
                 Program.AddBlock(New PumpOutWater(Program))
                 Program.AddBlock(New Centrifuge(Program, RPM * 0.7, 3 * 60))
 
                 For i As Integer = 0 To ExtraRinse - 1
-                    Program.AddBlock(New AddWater(Program, WaterControl.WaterSource.WaterSource2, 75, 35))
+                    Program.AddBlock(New AddWater(Program, WaterControl.WaterSource.WaterSource2, 70, 35))
                     Program.AddBlock(New Wash(Program, 0, 2 * 60, 10 * 60))
                     Program.AddBlock(New PumpOutWater(Program))
                     Program.AddBlock(New Centrifuge(Program, RPM * 0.45, 1.5 * 60))
@@ -101,7 +101,7 @@ Public Class ProgramManager
                     Program.AddBlock(New Centrifuge(Program, RPM * 0.45, 1.5 * 60))
                 Next
             Case ProgramTypes.Fast
-                Program.AddBlock(New AddWater(Program, WaterControl.WaterSource.WaterSource2, 75, 35))
+                Program.AddBlock(New AddWater(Program, WaterControl.WaterSource.WaterSource2, 60, 35))
                 Program.AddBlock(New CreateFoam(Program, 80))
                 Program.AddBlock(New Wash(Program, WantedTemp, 5 * 60, 120 * 60))
                 Program.AddBlock(New PumpOutWater(Program))
@@ -211,6 +211,8 @@ Public Class Program
         ErrorWaterSensor = 6
         ErrorWaterLeaking = 7
         ErrorMotorBlocked = 8
+        ErrorWaterOverflow = 9
+        ErrorTempSensor = 10
     End Enum
 
     ''' <summary>
@@ -424,6 +426,21 @@ Public Class Program
     End Sub
 
     ''' <summary>
+    ''' Generates execution error, stops the program executing and sets error code on display
+    ''' </summary>
+    ''' <param name="ErrorCode"></param>
+    ''' <param name="Message"></param>
+    Public Sub GenerateError(ByVal ErrorCode As ProgramErrors, ByVal Message As String)
+        StopExecute()
+        m_State = ProgramStates.Error
+        Dim CurrentBlock As ProgramBlock = Nothing
+        If m_CurrentIndex < m_Blocks.Count Then
+            CurrentBlock = m_Blocks(m_CurrentIndex)
+        End If
+        RaiseEvent ExecuteError(Me, ErrorCode, CurrentBlock, Message)
+    End Sub
+
+    ''' <summary>
     ''' Gets/sets the current execution state of the program
     ''' </summary>
     ''' <returns></returns>
@@ -433,6 +450,15 @@ Public Class Program
         End Get
         Set(value As ProgramStates)
             m_State = value
+        End Set
+    End Property
+
+    Public Property ErrorCode() As ProgramErrors
+        Get
+            Return m_ErrorCode
+        End Get
+        Set(value As ProgramErrors)
+            m_ErrorCode = value
         End Set
     End Property
 

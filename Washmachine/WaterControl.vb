@@ -9,6 +9,7 @@ Imports WiringPiNet
 Public Class WaterControl
 
     Protected WithEvents m_MotorControl As MotorControl 'required because the microcontroller that drives motor also drives and reads the water level sensor
+    Protected m_Machine As WashingMachine
 
     Protected m_LastWaterLevels(0 To 10) As Integer
     Protected m_AvgWaterLevel As Integer
@@ -47,8 +48,9 @@ Public Class WaterControl
     ''' <param name="Motor"></param>
     ''' <param name="WaterIn1"></param>
     ''' <param name="WaterIn2"></param>
-    Public Sub New(ByVal Motor As MotorControl, ByVal WaterIn1 As GpioPin, ByVal WaterIn2 As GpioPin)
+    Public Sub New(ByVal Machine As WashingMachine, ByVal Motor As MotorControl, ByVal WaterIn1 As GpioPin, ByVal WaterIn2 As GpioPin)
         m_MotorControl = Motor
+        m_Machine = Machine
         m_WaterIn1 = WaterIn1
         m_WaterIn2 = WaterIn2
     End Sub
@@ -88,6 +90,7 @@ Public Class WaterControl
     End Sub
 
     Protected Sub ControlWaterLevel(ByVal Params As WaterLevelParam)
+        Dim OverFlowCount As Integer = 0
         Try
             Dim PLevel As Integer
             Dim PPLevel As Integer
@@ -104,6 +107,19 @@ Public Class WaterControl
                     ElseIf Level > Params.WantedLevel Then
                         CloseValves()
                     End If
+                End If
+
+                If m_Machine.OverFlowDetect.CurrentValue = PinValue.Low Then
+                    OverFlowCount += 1
+                    If OverFlowCount = 10 Then
+                        CloseValves()
+                        RaiseEvent DebugEvent(Me, "Water overflow detected!")
+                        If Machine.Program IsNot Nothing Then
+                            Machine.Program.GenerateError(Program.ProgramErrors.ErrorWaterOverflow, "Overflow detected.")
+                        End If
+                    End If
+                Else
+                    OverFlowCount = 0
                 End If
 
                 PLevel = Level

@@ -92,6 +92,9 @@ Public Class MotorControl
     Public ThresholdX As Single = 1.3
     Public ThresholdY As Single = 2.4
     Public ThresholdZ As Single = 2.3
+    Public PeakThresholdX As Single = 1.2
+    Public PeakThresholdY As Single = 4.0
+    Public PeakThresholdZ As Single = 4.0
     Public ThresholdCountX As Integer
     Public ThresholdCountY As Integer
     Public ThresholdCountZ As Integer
@@ -247,11 +250,11 @@ Public Class MotorControl
     Protected Sub WashCycle(ByVal CycleDelay As Integer)
         Thread.Sleep(100)
         SetWantedSpeed(40)
-        Thread.Sleep(20000)
+        Thread.Sleep(18000 + Rnd() * 4000)
         SetWantedSpeed(0)
         Thread.Sleep(CycleDelay)
         SetWantedSpeed(-40)
-        Thread.Sleep(12000)
+        Thread.Sleep(10000 + Rnd() * 4000)
         SetWantedSpeed(0)
         Thread.Sleep(CycleDelay)
     End Sub
@@ -277,22 +280,22 @@ Public Class MotorControl
             End If
 
             'first very slowly go to 250 and check for any unbalance using the accelerometer
-            Dim TryCentrifugeTimeout As Integer = 10
+            Dim TryCentrifugeTimeout As Integer = 15
             Do
                 If PrintDebugData Then RaiseEvent DebugPrint(Me, "Try centrifuge " & TryCentrifugeTimeout)
 
                 'first do a short wash cycle
                 Thread.Sleep(100)
                 SetWantedSpeed(40 * Direction)
-                Thread.Sleep(15000)
+                Thread.Sleep(15000 + Rnd() * 4000)
                 SetWantedSpeed(0)
                 Thread.Sleep(2000)
                 SetWantedSpeed(-40 * Direction)
-                Thread.Sleep(10000)
+                Thread.Sleep(10000 + Rnd() * 4000)
                 SetWantedSpeed(0)
                 Thread.Sleep(100)
                 SetWantedSpeed(40 * Direction)
-                Thread.Sleep(5000)
+                Thread.Sleep(5000 + Rnd() * 4000)
 
                 PeakX = 0
                 PeakY = 0
@@ -352,7 +355,7 @@ Public Class MotorControl
                 End If
 
                 TryCentrifugeTimeout -= 1
-                Volatile.Write(m_TryCentrifugeCount, 10 - TryCentrifugeTimeout)
+                Volatile.Write(m_TryCentrifugeCount, TryCentrifugeTimeout)
             Loop While Volatile.Read(m_UnabalanceAlarm) AndAlso TryCentrifugeTimeout > 0 'check if unbalance alarm was triggered, try again until we decide to spawn error because of try timeout
 
             If TryCentrifugeTimeout = 0 Then
@@ -704,19 +707,19 @@ Public Class MotorControl
         HighPassValueY = FilterCoef * (PHighPassValueY + Sample.Y - PSample.Y)
         HighPassValueZ = FilterCoef * (PHighPassValueZ + Sample.Z - PSample.Z)
 
-        If Math.Abs(HighPassValueX) > ThresholdX Then
+        If Math.Abs(HighPassValueX) > ThresholdX OrElse PeakX > PeakThresholdX Then
             UnbalancedAxis = UnbalancedAxis Or 1
             ThresholdCountX += 1
             AlarmTime = Now()
         End If
 
-        If Math.Abs(HighPassValueY) > ThresholdY Then
+        If Math.Abs(HighPassValueY) > ThresholdY OrElse PeakY > PeakThresholdY Then
             UnbalancedAxis = UnbalancedAxis Or 2
             ThresholdCountY += 1
             AlarmTime = Now()
         End If
 
-        If Math.Abs(PHighPassValueZ) > ThresholdZ Then
+        If Math.Abs(PHighPassValueZ) > ThresholdZ OrElse PeakZ > PeakThresholdZ Then
             UnbalancedAxis = UnbalancedAxis Or 4
             ThresholdCountZ += 1
             AlarmTime = Now()

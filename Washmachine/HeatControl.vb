@@ -8,6 +8,7 @@ Imports WiringPiNet
 Public Class HeatControl
 
     Protected WithEvents m_MotorControl As MotorControl
+    Protected m_Machine As WashingMachine
     Protected m_WaterControl As WaterControl
     Protected m_IOPin As GpioPin
 
@@ -31,10 +32,11 @@ Public Class HeatControl
     ''' <param name="MotorControl">is needed because it provides information about the temperature</param>
     ''' <param name="IOPin"></param>
     ''' <param name="WaterControl">if waterlevel drops heating will be disabled automatically to prevent damage</param>
-    Public Sub New(ByVal MotorControl As MotorControl, ByVal IOPin As GpioPin, ByVal WaterControl As WaterControl)
+    Public Sub New(ByVal Machine As WashingMachine, ByVal MotorControl As MotorControl, ByVal IOPin As GpioPin, ByVal WaterControl As WaterControl)
         m_MotorControl = MotorControl
         m_IOPin = IOPin
         m_WaterControl = WaterControl
+        m_Machine = Machine
     End Sub
 
     ''' <summary>
@@ -71,7 +73,10 @@ Public Class HeatControl
                     DisableHeater()
                 Else
                     Dim Temp As Single = GetTemp()
-                    If Temp < 95 Then
+                    If Temp <= 0 Then 'something wrong with temp sensor
+                        DisableHeater()
+                        m_Machine.Program.GenerateError(Program.ProgramErrors.ErrorTempSensor, "Temperature sensor failure.")
+                    ElseIf Temp < 95 Then
                         If Temp < m_WantedTemp - m_WantedTemp * 5 / 100 Then
                             EnableHeater()
                         ElseIf Temp >= m_WantedTemp Then

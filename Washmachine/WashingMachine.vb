@@ -15,6 +15,7 @@ Public Class WashingMachine
     Public Const DOOR_LOCK_GPIO As Integer = 7
     Public Const WATER_VALVE1_GPIO As Integer = 6
     Public Const WATER_VALVE2_GPIO As Integer = 5
+    Public Const OVERFLOW_DETECT As Integer = 27
 
     Public WithEvents Motor As MotorControl 'controls the motor
     Public WithEvents Heater As HeatControl 'controls the heating
@@ -31,6 +32,7 @@ Public Class WashingMachine
     Public Heating As GpioPin
     Public Water1 As GpioPin
     Public Water2 As GpioPin
+    Public OverFlowDetect As GpioPin
 
     ''' <summary>
     ''' Timeer and settings for auto saving the program state to be able to resume after power failure or program crash
@@ -79,10 +81,15 @@ Public Class WashingMachine
         Water2 = New GpioPin(GPIO, WATER_VALVE2_GPIO)
         Water2.SetMode(PinMode.Output)
 
+        OverFlowDetect = New GpioPin(GPIO, OVERFLOW_DETECT)
+        OverFlowDetect.SetMode(PinMode.Input)
+
         Motor = New MotorControl("/dev/ttyS0", New GpioPin(GPIO, MOTOR_POWER_GPIO))
 
-        Water = New WaterControl(Motor, Water1, Water2)
-        Heater = New HeatControl(Motor, Heating, Water)
+        Water = New WaterControl(Me, Motor, Water1, Water2)
+        Heater = New HeatControl(Me, Motor, Heating, Water)
+
+
 
         Reset()
 
@@ -364,7 +371,9 @@ Public Class WashingMachine
         MMI.Set7Segment(1, &HE)
         MMI.Set7Segment(2, Err / 10)
         MMI.Set7Segment(3, Err Mod 10)
-        RaiseEvent DebugEvent(Me, "Execute Error: " & CurrentBlock.Name)
+        Dim BlockName As String = ""
+        If CurrentBlock IsNot Nothing Then BlockName = CurrentBlock.Name
+        RaiseEvent DebugEvent(Me, "Execute Error: " & Message & " in " & BlockName)
     End Sub
 
     ''' <summary>
@@ -418,5 +427,12 @@ Public Class WashingMachine
                 RaiseEvent DebugEvent(Me, "Error removing save program file: " & SaveProgramFileName)
             End Try
         End If
+
+        Try
+            Shell(My.Application.Info.DirectoryPath & "/finish.sh")
+        Catch ex As Exception
+            RaiseEvent DebugEvent(Me, "Execute finish.sh failed " & ex.Message)
+        End Try
+
     End Sub
 End Class

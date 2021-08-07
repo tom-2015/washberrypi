@@ -367,6 +367,13 @@ Public Class Wash
                 m_TimeToReachTemp = (m_WantedTemp - m_startTemp) * AVERAGE_HEATING_TIME - (Now - m_Start).TotalSeconds 'take average of 50 sec for 1 degree
             End If
 
+            If m_TimeToReachTemp > 9000 Then
+                m_Machine.StopHeating()
+                m_Machine.Program.GenerateError(Program.ProgramErrors.ErrorTempSensor, "Error with temperature sensor, takes too long to heat > 9000s.")
+                m_Machine.StopWashing()
+                Return False
+            End If
+
             If (Now() - m_Start).TotalSeconds > m_MaxTime AndAlso m_MaxTime > 0 Then
                 Res = False
                 Exit While
